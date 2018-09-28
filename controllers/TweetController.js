@@ -1,66 +1,51 @@
 const validation = require('../validation');
+const TweetModel = require('../models/Tweet');
 
 const TweetController = {
 
   getTweets(req, res) {
-    res.send([
-      {
-        id: 1,
-        body: "Hola mundo",
-        likes: 10,
-        retweets: 50,
-        user: "Alex",
-        comments: []
-      },
-      {
-        id: 2,
-        body: "Hola mundo",
-        likes: 10,
-        retweets: 50,
-        user: "Alex",
-        comments: []
-      },
-      {
-        id: 3,
-        body: "Hola mundo",
-        likes: 10,
-        retweets: 50,
-        user: "Alex",
-        comments: []
+    TweetModel.find((err, data) => {
+      if (err) {
+        res.send({ error: 'Error al leer datos' });
+        return;
       }
-    ])
+
+      res.send(data);
+    });
   },
 
   getSingleTweet(req, res) {
-    res.send({
-      id: req.params.tweetId,
-      body: "Hola mundo",
-      likes: 10,
-      retweets: 50,
-      user: "Alex",
-      comments: []
+    TweetModel.findById(req.params.tweetId, (err, data) => {
+      if (err) {
+        res.send({ error: 'Error al leer datos' });
+        return;
+      }
+
+      res.send(data);
     })
   },
 
   postTweet(req, res) {
     // conseguir las propiedades que queremos
-    const tweet = {
+    const fields = {
       body: req.body.body
     }
 
-    if (!tweet.body) {
+    if (!fields.body) {
       res.send({ error: 'Tweet no puede estar vacio' })
       return;
     }
 
-    if (!validation.isValidLength(tweet.body, 140)) {
+    if (!validation.isValidLength(fields.body, 140)) {
       res.json({ error: 'Tweet no puede ser mayor de 140 caracteres.' });
       return;
     }
 
     // Guardar en base de datos
-
-    res.send(tweet);
+    let tweet = new TweetModel(fields)
+    tweet.save().then(() => {
+      res.send(tweet);
+    })
   },
 
   postComment(req, res) {
@@ -79,7 +64,17 @@ const TweetController = {
       return;
     }
 
-    res.send(comment);
+    let query = { _id: comment.replyTo };
+    let update = { $push: { comments: comment } };
+
+    TweetModel.update(query, update, (err, data) => {
+      if (err) {
+        res.send({ error: 'Error al postear comment' });
+        return;
+      }
+
+      res.send(data);
+    });
   }
 
 };
