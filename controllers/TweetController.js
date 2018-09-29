@@ -4,7 +4,7 @@ const TweetModel = require('../models/Tweet');
 const TweetController = {
 
   getTweets(req, res) {
-    TweetModel.find((err, data) => {
+    TweetModel.find().sort('-createdAt').exec((err, data) => {
       if (err) {
         res.send({ error: 'Error al leer datos' });
         return;

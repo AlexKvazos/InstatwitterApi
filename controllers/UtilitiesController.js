@@ -6,7 +6,7 @@ const UtilitesController = {
   },
 
   handle500(err, req, res, next) {
-    console.log('Error!!!');
+    console.log('Error!!!', err);
     res.send({
       error: 'Internal server error'
     });
