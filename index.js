@@ -2,18 +2,15 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const routes = require('./routes');
 const database = require('./modules/database');
+const session = require('./middleware/session');
+const cors = require('./middleware/cors');
 const app = express()
 const port = 3000
 
 database.init();
 
-app.use(function(req, res, next) {
-  console.log(req.method, req.url);
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "OPTIONS, GET, POST");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
+app.use(session);
+app.use(cors);
 
 // Leer el JSON de las solicitudes POST
 app.use(bodyParser.json())

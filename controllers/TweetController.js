@@ -4,7 +4,7 @@ const TweetModel = require('../models/Tweet');
 const TweetController = {
 
   getTweets(req, res) {
-    TweetModel.find().sort('-createdAt').exec((err, data) => {
+    TweetModel.find().sort('-createdAt').populate('user', 'username').exec((err, data) => {
       if (err) {
         res.send({ error: 'Error al leer datos' });
         return;
@@ -25,11 +25,14 @@ const TweetController = {
     })
   },
 
-  postTweet(req, res) {
+  postTweet(req, res, next) {
+    if (!req.user) return next(403);
+
     // conseguir las propiedades que queremos
     const fields = {
-      body: req.body.body
-    }
+      body: req.body.body,
+      user: req.user._id
+    };
 
     if (!fields.body) {
       res.send({ error: 'Tweet no puede estar vacio' })
@@ -44,6 +47,7 @@ const TweetController = {
     // Guardar en base de datos
     let tweet = new TweetModel(fields)
     tweet.save().then(() => {
+      tweet.user = req.user;
       res.send(tweet);
     })
   },

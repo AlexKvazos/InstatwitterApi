@@ -5,7 +5,7 @@ const TweetSchema = new mongoose.Schema({
   body: { type: String, required: true },
   likes: { type: Array, required: true },
   retweets: { type: Array, required: true },
-  user: { type: mongoose.Schema.Types.ObjectId, ref:'User', required: false },
+  user: { type: mongoose.Schema.Types.ObjectId, ref:'User', required: true },
   comments: { type: Array, required: true },
   createdAt: { type: Date, default: Date.now }
 });
